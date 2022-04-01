@@ -1,0 +1,24 @@
+<script  src="ctutil.js"></script>
+<input type="file" id="file-selector">
+<script>
+  console.log(ctutil)
+  const fileSelector = document.getElementById('file-selector');
+    fileSelector.addEventListener('change', (event) => {
+    const fileList = event.target.files;
+    const f = fileList[0];
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+    const metadata = `name: ${f.name}, type: ${f.type}, size: ${f.size}, contents:`;
+    const contents = evt.target.result;
+    console.log(metadata, contents);
+    console.log(contents);
+    const asn1 = ctutil.asn1js.fromBER(contents)
+    console.log(asn1.result)
+    const certificate = new ctutil.pkijs.Certificate({schema: asn1.result});
+    console.log(certificate)
+    const sct = ctutil.CertHelper.extractSCTFromCert(certificate);
+    console.log(sct)
+  };
+  reader.readAsArrayBuffer(f);
+  });
+</script>
