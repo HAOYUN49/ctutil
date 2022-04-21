@@ -56,6 +56,7 @@ export default class CTLogHelper {
         return ret;
 
       let logs = [];
+      //let id = 0;
       res.logs.forEach(log => {
         if(!('url' in log) || !('key' in log) ||
           !('description' in log) || !('operated_by' in log) ||
@@ -66,8 +67,12 @@ export default class CTLogHelper {
 
         const pubKey = pvutils.stringToArrayBuffer(pvutils.fromBase64(log.key));
         let logId = null;
-        if('log_id' in log)
+        if('log_id' in log) {
           logId = pvutils.stringToArrayBuffer(pvutils.fromBase64(log.log_id));
+        } //else {
+          //logId = pvutils.stringToArrayBuffer(pvutils.fromBase64(id));
+          //id += 1;
+        //}
 
         let operators = [];
         log.operated_by.forEach(operator => {

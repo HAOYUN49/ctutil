@@ -219,4 +219,12 @@ export default class CertHelper {
 
     return sequence;
   }
+
+  static convertSCTToMerkleTreeLeaf(sct) {
+    const timestampedEntry = new TimestampedEntry(sct.timestamp, sct.type,
+        sct.cert, sct.extensions);
+    const merkleTreeLeaf = new MerkleTreeLeaf(sct.version,
+        MerkleLeafType.timestamped_entry, timestampedEntry);
+    return merkleTreeLeaf;
+  }
 }

@@ -1,4 +1,5 @@
 import CertHelper from './CertHelper.js';
+import LeafHash from "./LeafHash";
 import CompactMerkleTree from './CompactMerkleTree.js';
 import CTLog from './CTLog.js';
 import CTLogHelper from './CTLogHelper.js';
@@ -15,6 +16,7 @@ import * as forge from 'node-forge'
 
 
 export { CertHelper };
+export {LeafHash};
 export { CompactMerkleTree };
 export { CTLog };
 export { CTLogHelper };
