@@ -36,9 +36,9 @@
                 const findout = loglist.findById(sct_example.logId);
                 console.log(findout);
                 ctutil.CertHelper.verifySCTInclusion(sct_example, loglist)
-                .then((value1 => {
+                .then((value1) => {
                     console.log(value1);
-                }))
+                })
             }
         });
     }
