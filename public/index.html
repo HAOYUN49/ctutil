@@ -1,24 +1,62 @@
 <script  src="ctutil.js"></script>
-<input type="file" id="file-selector">
+<input type="file" id="file-selector" multiple>
 <script>
+
+  function readFile(file){
+    return new Promise(function(resolve,reject){
+        let fr = new FileReader();
+        fr.onload = function(){
+            resolve(fr.result);
+        };
+        fr.onerror - function(){
+            reject(fr);
+        }
+        fr.readAsArrayBuffer(file)
+    });
+  }
+
+  function buf2hex(buffer) { // buffer is an ArrayBuffer
+  return [...new Uint8Array(buffer)]
+      .map(x => x.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
   console.log(ctutil)
   const fileSelector = document.getElementById('file-selector');
     fileSelector.addEventListener('change', (event) => {
     const fileList = event.target.files;
-    const f = fileList[0];
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-    const metadata = `name: ${f.name}, type: ${f.type}, size: ${f.size}, contents:`;
-    const contents = evt.target.result;
-    console.log(metadata, contents);
-    console.log(contents);
-    const asn1 = ctutil.asn1js.fromBER(contents)
-    console.log(asn1.result)
-    const certificate = new ctutil.pkijs.Certificate({schema: asn1.result});
-    console.log(certificate)
-    const sct = ctutil.CertHelper.extractSCTFromCert(certificate);
-    console.log(sct)
-  };
-  reader.readAsArrayBuffer(f);
+    let readers = [];
+    for(let i=0; i<fileList.length;i++){
+        readers.push(readFile(fileList[i]));
+    }
+    Promise.all(readers).then((values) =>{
+        leaf_der = values[0]
+        issuer_der = values[1]
+        const leaf_asn1 = ctutil.asn1js.fromBER(leaf_der)
+        const issuer_asn1 = ctutil.asn1js.fromBER(issuer_der)
+        const leaf_cert = new ctutil.pkijs.Certificate({schema: leaf_asn1.result});
+        const issuer_cert = new ctutil.pkijs.Certificate({schema: issuer_asn1.result});
+        ctutil.CertHelper.getKeyHash(issuer_cert).then((value)=>{
+            const issuer_key_hash = value
+            console.log(btoa(String.fromCharCode(...new Uint8Array(value))))
+            const sct = ctutil.CertHelper.extractSCTFromCert(leaf_cert,issuer_key_hash)
+            const loglist = new ctutil.CTLogHelper();
+            loglist.fetch("https://www.gstatic.com/ct/log_list/log_list.json")
+            .then((value) => loglist.generateIds())
+            .then((value) => {
+                for (const sct_example of sct) {
+                    const findout = loglist.findById(sct_example.logId);
+                    const timestampedEntry = new ctutil.TimestampedEntry(sct_example.timestamp, sct_example.type,sct_example.cert, sct_example.extensions);
+                    const merkleTreeLeaf = new ctutil.MerkleTreeLeaf(sct_example.version,ctutil.MerkleLeafType.timestamped_entry, timestampedEntry);
+                    ctutil.CertHelper.verifySCTInclusion(sct_example, loglist)
+                    .then((value1) => {
+                        console.log(value1);
+                    })
+                }
+            });
+        });
+
+
+    });
   });
 </script>

@@ -53,7 +53,6 @@ export default class MerkleTreeLeaf {
     merkleTreeLeafView[1] = this.type;
 
     merkleTreeLeafView.set(timestampedEntryView, 2);
-
     return merkleTreeLeaf;
   }
 

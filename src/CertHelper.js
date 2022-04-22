@@ -110,7 +110,7 @@ export default class CertHelper {
     if(sctListIndex !== -1)
       workingCert.extensions.splice(sctListIndex, 1);
 
-    return new PreCert(issuerKeyHash, workingCert.encodeTBS().toBER(false));
+    return new PreCert(issuerKeyHash, workingCert.encodeTBS().toBER(false)).toBinary();
   }
 
   /**

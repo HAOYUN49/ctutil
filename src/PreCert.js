@@ -50,7 +50,6 @@ export default class PreCert {
     preCertView[34] = tbsView.length & 0xff
 
     preCertView.set(tbsView, 35);
-
     return preCertView;
   }
 
