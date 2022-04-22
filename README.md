@@ -5,4 +5,4 @@ npm run build <br>
 npm run start <br>
 
 Test: <br>
-upload google.cer on localhost after running npm start and you will see sct printed out in console.
+select google.cer, google_inter.cer(order is important) and upload on localhost after running npm start and observe output in console.
