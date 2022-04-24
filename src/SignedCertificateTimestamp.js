@@ -150,14 +150,12 @@ export default class SignedCertificateTimestamp {
     } else {
       return Promise.reject(new Error('Unknown key type'));
     }
-
     let sequence = Promise.resolve();
     const signatureView = new Uint8Array(this.signature);
-
     const certView = new Uint8Array(this.cert);
     const extensionsView = new Uint8Array(this.extensions);
 
-    const dataStructLen = 17 + certView.length + extensionsView.length;
+    const dataStructLen = 14 + certView.length + extensionsView.length;
     const dataStruct = new ArrayBuffer(dataStructLen);
     const dataStructView = new Uint8Array(dataStruct);
 
@@ -173,19 +171,19 @@ export default class SignedCertificateTimestamp {
     dataStructView[10] = (this.type >> 8) & 0xff;
     dataStructView[11] = this.type & 0xff;
 
-    dataStructView[12] = (certView.length >> 16) & 0xff;
-    dataStructView[13] = (certView.length >> 8) & 0xff;
-    dataStructView[14] = certView.length & 0xff;
+    //dataStructView[12] = (certView.length >> 16) & 0xff;
+    //dataStructView[13] = (certView.length >> 8) & 0xff;
+    //dataStructView[14] = certView.length & 0xff;
 
-    dataStructView.set(certView, 15);
+    dataStructView.set(certView, 12);
 
-    dataStructView[16 + certView.length] =
+    dataStructView[13 + certView.length] =
       (extensionsView.length >> 8) & 0xff;
-    dataStructView[16 + certView.length + 1] =
+    dataStructView[13 + certView.length + 1] =
       extensionsView.length & 0xff;
 
     if(extensionsView.length > 0)
-      dataStructView.set(extensionsView, 18 + certView.length);
+      dataStructView.set(extensionsView, 15 + certView.length);
 
     /*
      * Per RFC6962 all signatures are either ECDSA with the NIST P-256 curve
@@ -194,7 +192,6 @@ export default class SignedCertificateTimestamp {
     const isECDSA = signatureView[1] === 3;
 
     const pubKeyView = new Uint8Array(pubKey);
-
     const webcrypto = pkijs.getEngine();
 
     sequence = sequence.then(() => {
@@ -220,7 +217,6 @@ export default class SignedCertificateTimestamp {
 
     sequence = sequence.then(publicKey => {
       let opts;
-
       if(isECDSA) {
         opts = {
           name: 'ECDSA',

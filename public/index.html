@@ -44,6 +44,9 @@
             loglist.fetch("https://www.gstatic.com/ct/log_list/log_list.json")
             .then((value) => loglist.generateIds())
             .then((value) => {
+                ctutil.CertHelper.validateCertSCT(leaf_cert,issuer_key_hash,loglist).then((value)=>{
+                    console.log(value)
+                })
                 for (const sct_example of sct) {
                     const findout = loglist.findById(sct_example.logId);
                     const timestampedEntry = new ctutil.TimestampedEntry(sct_example.timestamp, sct_example.type,sct_example.cert, sct_example.extensions);

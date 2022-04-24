@@ -73,13 +73,11 @@ export default class CertHelper {
     let parsedLen = 0;
 
     parseBlock = parseBlock.slice(2);
-
     while(parsedLen < totalLen) {
       parseBlockView = new Uint8Array(parseBlock);
       const sctLen = (parseBlockView[0] << 8) + parseBlockView[1];
-
       sctList.push(SignedCertificateTimestamp.fromBinary(parseBlock.slice(2,
-        sctLen), LogEntryType.precert_entry, preCert));
+        sctLen+2), LogEntryType.precert_entry, preCert));
       parseBlock = parseBlock.slice(2 + sctLen);
       parsedLen += (2 + sctLen);
     }
